@@ -1,4 +1,4 @@
-@@include('normalize.css')
+{{ include('normalize.css') }}
 
 body {
 	/* Paint it black */

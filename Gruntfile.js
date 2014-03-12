@@ -4,7 +4,7 @@ module.exports = function(grunt) {
 
 	grunt.initConfig({
 
-		includereplace: {
+		includereplacemore: {
 			parameterless: {
 				src: 'parameterless/test.txt',
 				dest: 'dist/',
@@ -50,8 +50,8 @@ module.exports = function(grunt) {
 			},
 			prefixsuffix: {
 				options: {
-					prefix: '<!-- @@',
-					suffix: ' -->',
+					prefix: '<!-- {{ ',
+					suffix: ' }} -->',
 					globals: {
 						x: 1138
 					}
@@ -63,8 +63,8 @@ module.exports = function(grunt) {
 			},
 			multisrc: {
 				options: {
-					prefix: '"@@',
-					suffix: '"'
+					prefix: '"{{ ',
+					suffix: ' }}"'
 				},
 				src: ['js/*.js', 'lib/**/*.js'],
 				dest: 'dist/multisrc',
@@ -99,6 +99,8 @@ module.exports = function(grunt) {
 			},
 			process: {
 				options: {
+					prefix: '@@',
+					suffix: '@@',
 					processIncludeContents: function(contents, localVars) {
 						var indent = new Array((parseInt(localVars.indent, 10)) + 1).join(' ');
 						return contents.replace(/^/gm, indent);
@@ -137,8 +139,8 @@ module.exports = function(grunt) {
 			},
 			regexSafePrefixSuffix: {
 				options: {
-					prefix: '\\/\\* @@ ',
-					suffix: ' \\*\\/'
+					prefix: '\\/\\* {{ ',
+					suffix: ' }} \\*\\/'
 				},
 				src: 'regexsafeprefixsuffix/index.js',
 				dest: 'dist/',
@@ -154,7 +156,48 @@ module.exports = function(grunt) {
 			copyFileToFile: {
 				src: 'test/files/copyFileToFile/index.html',
 				dest: 'dist/copyFileToFile/index.production.html'
+			},
+			ifBlockTrue: {
+				options: {
+					globals: {
+						foo: true
+					}
+				},
+				src: 'ifblocktrue/index.html',
+				dest: 'dist/',
+				expand: true,
+				cwd: 'test/files'
+			},
+			ifBlockFalse: {
+				options: {
+					globals: {
+						foo: 'false'
+					}
+				},
+				src: 'ifblockfalse/index.html',
+				dest: 'dist/',
+				expand: true,
+				cwd: 'test/files'
+			},
+			ifBlockTrueInclude: {
+				src: 'ifblocktrueinclude/index.html',
+				dest: 'dist/',
+				expand: true,
+				cwd: 'test/files'
+			},
+			ifBlockFalseInclude: {
+				src: 'ifblockfalseinclude/index.html',
+				dest: 'dist/',
+				expand: true,
+				cwd: 'test/files'
+			},
+			variables: {
+				src: 'variables/index.html',
+				dest: 'dist/',
+				expand: true,
+				cwd: 'test/files'
 			}
+			
 			// TODO: Test me:
 			// lodash templates in global and local vars
 			// vars in params
@@ -205,5 +248,5 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-nodeunit');
 	grunt.loadTasks('tasks');
 
-	grunt.registerTask('default', ['jshint', 'includereplace', 'nodeunit']);
+	grunt.registerTask('default', ['jshint', 'includereplacemore', 'nodeunit']);
 };

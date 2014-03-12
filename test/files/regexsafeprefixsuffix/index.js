@@ -1,1 +1,1 @@
-/* @@ include("foo.js") */
+/* {{ include("foo.js") }} */

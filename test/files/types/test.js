@@ -1,11 +1,11 @@
-@@int;
+{{ int }};
 
-@@float;
+{{ float }};
 
-@@array;
+{{ array }};
 
-@@object;
+{{ object }};
 
-"@@string";
+"{{ string }}";
 
-@@include("include.js", {"data": @@object})
+{{ include("include.js", {"data": {{ object }}}) }}

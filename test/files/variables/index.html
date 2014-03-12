@@ -1,0 +1,13 @@
+{{ var $size-1: "small" }}
+{{ var $size-2: "medium" }}
+{{ var $size-3: "large" }}
+
+<p>My cat is $size-1.</p>
+
+<p>My dog is $size-2.</p>
+
+<p>My horse is $size-3.</p>
+
+<p>But all of them have things that are $size-1, $size-2 and $size-3 in relation to their own size.</p>
+
+{{ include('inc.html', {"biggest": "$size-3"}) }}

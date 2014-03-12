@@ -2,4 +2,4 @@ define [], ->
 
   class Module
   
-    constructor: (@name) ->)
+    constructor: (@name) ->

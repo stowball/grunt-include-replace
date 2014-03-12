@@ -1,8 +1,8 @@
 /*
- * grunt-include-replace
- * https://github.com/alanshaw/grunt-include-replace
+ * grunt-include-replace-more
+ * https://github.com/stowball/grunt-include-replace-more
  *
- * Copyright (c) 2013 Alan Shaw
+ * Copyright (c) 2014 Matt Stow
  * Licensed under the MIT license.
  */
 
@@ -13,18 +13,58 @@ module.exports = function(grunt) {
 	var _ = grunt.util._;
 	var path = require('path');
 
-	grunt.registerMultiTask('includereplace', 'Include files and replace variables', function() {
+	grunt.registerMultiTask('includereplacemore', 'Include files and replace variables', function() {
 
 		var options = this.options({
-			prefix: '@@',
-			suffix: '',
+			prefix: '{{ ',
+			suffix: ' }}',
+			prefixIf: 'if ',
+			suffixIf: 'endif',
 			globals: {},
 			includesDir: '',
 			docroot: '.'
 		});
-
+		
+		if (options.prefix.length === 0) {
+			options.prefix = '{{ ';
+		}
+		
+		if (options.suffix.length === 0) {
+			options.suffix = ' }}';
+		}
+		
+		if (options.prefixIf.length === 0) {
+			options.prefixIf = 'if ';
+		}
+		
+		if (options.suffixIf.length === 0) {
+			options.suffixIf = 'endif';
+		}
+		
 		grunt.log.debug('Options', options);
 
+		function customVars(contents) {
+			var variables = contents
+							.replace(/(\n|\r)/g, '')
+							.match(new RegExp(options.prefix + 'var\\s+(\\$.*?):\\s*?["|\\\'](.*?)["|\\\']\\s*?' + options.suffix, 'g'));
+			var varLength = 0;
+			
+			if (variables) {
+				varLength += variables.length;
+			}
+			
+			if (varLength > 0) {
+				for (var i = 0; i < varLength; i++) {
+					contents = contents.replace(new RegExp(options.prefix + 'var\\s+(\\$.*?):\\s*?["|\\\'](.*?)["|\\\']\\s*?' + options.suffix + '[\\s\\S]*', 'm'), function(str2, p1, p2) {
+						var $var = p1.replace(/\$/g, '\\$');
+						return str2.replace(new RegExp($var, 'g'), p2);
+					});
+				}
+			}
+			
+			return contents;
+		}
+		
 		// Variables available in ALL files
 		var globalVars = options.globals;
 
@@ -42,7 +82,7 @@ module.exports = function(grunt) {
 		// Cached variable regular expressions
 		var globalVarRegExps = {};
 
-		function replace(contents, localVars) {
+		function replace(contents, localVars, ifBlock) {
 
 			localVars = localVars || {};
 
@@ -52,6 +92,8 @@ module.exports = function(grunt) {
 			// Replace local vars
 			varNames.forEach(function(varName) {
 
+				var replaceStr;
+
 				// Process lo-dash templates (for strings) in global variables and JSON.stringify the rest
 				if (_.isString(localVars[varName])) {
 					localVars[varName] = grunt.template.process(localVars[varName]);
@@ -59,20 +101,54 @@ module.exports = function(grunt) {
 					localVars[varName] = JSON.stringify(localVars[varName]);
 				}
 
-				varRegExps[varName] = varRegExps[varName] || new RegExp(options.prefix + varName + options.suffix, 'g');
-
-				contents = contents.replace(varRegExps[varName], localVars[varName]);
+				if (!ifBlock) {
+					varRegExps[varName] = new RegExp(options.prefix + varName + options.suffix, 'g');
+					
+					replaceStr = localVars[varName];
+				}
+				else {
+					if (_.isEmpty(localVars[varName]) || localVars[varName] === false || localVars[varName] === 'false') {
+						replaceStr = '';
+					}
+					else {
+						replaceStr = '$1';
+					}
+					
+					varRegExps[varName] = new RegExp(options.prefix + options.prefixIf + varName + options.suffix + '([\\s\\S]*?)' + options.prefix + options.suffixIf + options.suffix, 'g');
+				}
+				
+				contents = contents.replace(varRegExps[varName], replaceStr);
 			});
 
 			// Replace global variables
 			globalVarNames.forEach(function(globalVarName) {
 
-				globalVarRegExps[globalVarName] = globalVarRegExps[globalVarName] || new RegExp(options.prefix + globalVarName + options.suffix, 'g');
-
-				contents = contents.replace(globalVarRegExps[globalVarName], globalVars[globalVarName]);
+				var replaceStr;
+				
+				if (!ifBlock) {
+					globalVarRegExps[globalVarName] = new RegExp(options.prefix + globalVarName + options.suffix, 'g');
+					
+					replaceStr = globalVars[globalVarName];
+				}
+				else {
+					if (_.isEmpty(globalVars[globalVarName]) || globalVars[globalVarName] === false || globalVars[globalVarName] === 'false') {
+						replaceStr = '';
+					}
+					else {
+						replaceStr = '$1';
+					}
+					
+					globalVarRegExps[globalVarName] = new RegExp(options.prefix + options.prefixIf + globalVarName + options.suffix + '([\\s\\S]*?)' + options.prefix + options.suffixIf + options.suffix, 'g');
+				}
+				
+				contents = contents.replace(globalVarRegExps[globalVarName], replaceStr);
 			});
 
 			return contents;
+		}
+		
+		function unusedVars(contents) {
+			return contents.replace(new RegExp(options.prefix + '.*?' + options.suffix, 'g'), '');
 		}
 
 		var includeRegExp = new RegExp(options.prefix + 'include\\(\\s*["\'](.*?)["\'](,\\s*({[\\s\\S]*?})){0,1}\\s*\\)' + options.suffix);
@@ -115,8 +191,14 @@ module.exports = function(grunt) {
 
 				var includeContents = grunt.file.read(includePath);
 
+				// Set up and replace custom variables
+				includeContents = customVars(includeContents);
+				
 				// Make replacements
-				includeContents = replace(includeContents, localVars);
+				includeContents = replace(includeContents, localVars, false);
+
+				// Make if block replacements
+				includeContents = replace(includeContents, localVars, true);
 
 				// Process includes
 				includeContents = include(includeContents, path.dirname(includePath));
@@ -129,7 +211,7 @@ module.exports = function(grunt) {
 				matches = includeRegExp.exec(contents);
 			}
 
-			return contents;
+			return unusedVars(contents);
 		}
 
 		this.files.forEach(function(config) {
@@ -151,12 +233,21 @@ module.exports = function(grunt) {
 				var localVars = {docroot: docroot ? docroot + '/' : ''};
 
 				grunt.log.debug('Locals', localVars);
-
+				
+				// Set up and replace custom variables
+				contents = customVars(contents);
+				
 				// Make replacements
-				contents = replace(contents, localVars);
+				contents = replace(contents, localVars, false);
+
+				// Make if block replacements
+				contents = replace(contents, localVars, true);
 
 				// Process includes
 				contents = include(contents, path.dirname(src));
+				
+				// Remove unused variables
+				contents = unusedVars(contents);
 
 				//grunt.log.debug(contents);
 

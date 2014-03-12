@@ -1,3 +1,3 @@
 define [], ->
 
-@@include('included.coffee', {"indent": "2"}))
+@@include('included.coffee', {"indent": "2"})@@

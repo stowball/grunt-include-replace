@@ -1,1 +1,1 @@
-var data = @@data;
+var data = {{ data }};
