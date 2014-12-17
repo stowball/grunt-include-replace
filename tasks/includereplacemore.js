@@ -185,6 +185,8 @@ module.exports = function(grunt) {
 				if (localVars.docroot === undefined) {
 					localVars.docroot = docroot ? docroot + '/' : '';
 				}
+				
+				localVars.includePath = includePath;
 
 				grunt.log.debug('Including', includePath);
 				grunt.log.debug('Locals', localVars);
