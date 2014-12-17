@@ -281,6 +281,7 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
 
 ## Release History
 
+ * 2014-12-17   v1.3.1   Make includePath available as a local variable
  * 2014-04-12   v1.3.0   Added conditional if blocks and ability to set up custom variables
  * 2013-12-30   v1.2.0   Rename like `grunt-contrib-copy` by specifying dest filename (for single files)
  * 2013-06-19   v1.1.0   Added magic local variable `@@docroot`: relative path from the file that uses it to the path specified
