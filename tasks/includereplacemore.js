@@ -148,6 +148,7 @@ module.exports = function(grunt) {
 		}
 		
 		function unusedVars(contents) {
+			contents = contents.replace(new RegExp(options.prefix + options.prefixIf + '.*?' + options.suffix + '[\\s\\S]*?' + options.prefix + options.suffixIf + options.suffix, 'g'), '');
 			return contents.replace(new RegExp(options.prefix + '.*?' + options.suffix, 'g'), '');
 		}
 

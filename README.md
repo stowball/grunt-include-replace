@@ -36,7 +36,7 @@
 ```html
 <!DOCTYPE html>
 <h1>Hello World!</h1>
-{{ include('/path/to/include/message.html', {"name": "Joe Bloggs", "morning": true, "afternoon": false}) }}
+{{ include('/path/to/include/message.html', {"name": "Joe Bloggs", "morning": true}) }}
 ```
 
 **message.html**

@@ -157,17 +157,6 @@ module.exports = function(grunt) {
 				src: 'test/files/copyFileToFile/index.html',
 				dest: 'dist/copyFileToFile/index.production.html'
 			},
-			ifBlockTrue: {
-				options: {
-					globals: {
-						foo: true
-					}
-				},
-				src: 'ifblocktrue/index.html',
-				dest: 'dist/',
-				expand: true,
-				cwd: 'test/files'
-			},
 			ifBlockFalse: {
 				options: {
 					globals: {
@@ -179,14 +168,37 @@ module.exports = function(grunt) {
 				expand: true,
 				cwd: 'test/files'
 			},
+			ifBlockFalseInclude: {
+				src: 'ifblockfalseinclude/index.html',
+				dest: 'dist/',
+				expand: true,
+				cwd: 'test/files'
+			},
+			ifBlockTrue: {
+				options: {
+					globals: {
+						foo: true
+					}
+				},
+				src: 'ifblocktrue/index.html',
+				dest: 'dist/',
+				expand: true,
+				cwd: 'test/files'
+			},
 			ifBlockTrueInclude: {
 				src: 'ifblocktrueinclude/index.html',
 				dest: 'dist/',
 				expand: true,
 				cwd: 'test/files'
 			},
-			ifBlockFalseInclude: {
-				src: 'ifblockfalseinclude/index.html',
+			ifBlockUndefined: {
+				src: 'ifblockundefined/index.html',
+				dest: 'dist/',
+				expand: true,
+				cwd: 'test/files'
+			},
+			ifBlockUndefinedInclude: {
+				src: 'ifblockundefinedinclude/index.html',
 				dest: 'dist/',
 				expand: true,
 				cwd: 'test/files'
